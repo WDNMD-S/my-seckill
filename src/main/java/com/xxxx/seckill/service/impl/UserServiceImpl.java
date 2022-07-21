@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -69,9 +70,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         //生成Cookie保存ticket，通过ticket保存user的session
         String ticket = UUIDUtil.uuid();
 //        request.getSession().setAttribute(ticket,user);
-        redisTemplate.opsForValue().set("user:" + ticket, user);
+        redisTemplate.opsForValue().set("user:" + ticket, user, 30, TimeUnit.MINUTES);
         CookieUtil.setCookie(request, response, "userTicket", ticket);
-        return RespBean.success();
+        return RespBean.success(ticket);
     }
 
     /**

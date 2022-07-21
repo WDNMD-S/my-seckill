@@ -35,6 +35,15 @@ public class seckillController {
     private IOrderService orderService;
 
 
+    /**
+     * 秒杀
+     * windows 1000*10压测 QPS:236.7/sec
+     * Linux 1000*10压测 QPS:509.9/sec
+     * @param model
+     * @param user
+     * @param goodsId
+     * @return
+     */
     @RequestMapping("/doSeckill")
     public String doSeckill(Model model, User user, @Param(("goodsId")) Long goodsId){
         if(user == null){
