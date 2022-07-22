@@ -3,7 +3,9 @@ package com.xxxx.seckill.controller;
 import com.xxxx.seckill.pojo.User;
 import com.xxxx.seckill.service.IGoodsService;
 import com.xxxx.seckill.service.IUserService;
+import com.xxxx.seckill.vo.SeckilDetailVo;
 import com.xxxx.seckill.vo.GoodsVo;
+import com.xxxx.seckill.vo.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -63,7 +65,10 @@ public class GoodsController {
     /**
      * 跳转到商品页面(使用自定义参数)
      * windows 1000*10压测 QPS:981.3/sec
+     * windows 添加页面缓存 QPS:1798/sec
+     *
      * Linux 1000*10压测 QPS:597.9/sec
+     *
      *
      * @param model
      * @param user
@@ -94,7 +99,45 @@ public class GoodsController {
     }
 
     /**
-     * 跳转商品详情页面
+     * 跳转商品详情页面(页面静态化)
+     *
+     * @param model
+     * @param user
+     * @param goodsId
+     * @return
+     */
+    @RequestMapping(value = "/getDetail/{goodsId}")
+    @ResponseBody
+    public RespBean getDetail(Model model, User user, @PathVariable("goodsId") Long goodsId) {
+
+        GoodsVo goodsVo = goodsService.findGodsVoByGoodsId(goodsId);
+        Date startDate = goodsVo.getStartDate();
+        Date endDate = goodsVo.getEndDate();
+        Date now = new Date();
+        //秒杀状态
+        int seckillStatus = 0;
+        //秒杀倒计时
+        int remainSeconds = 0;
+        if (now.before(startDate)) {
+            remainSeconds = (int) ((startDate.getTime() - now.getTime()) / 1000);
+        } else if (now.after(endDate)) {
+            seckillStatus = 2;
+            remainSeconds = -1;
+        } else {
+            seckillStatus = 1;
+            remainSeconds = 0;
+        }
+        SeckilDetailVo detailVo = new SeckilDetailVo();
+        detailVo.setGoodsVo(goodsVo);
+        detailVo.setUser(user);
+        detailVo.setSeckillStatus(seckillStatus);
+        detailVo.setRemainSeconds(remainSeconds);
+        return RespBean.success(detailVo);
+    }
+
+
+    /**
+     * 跳转商品详情页面(redis缓存页面)
      *
      * @param model
      * @param user
@@ -103,9 +146,9 @@ public class GoodsController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "/toDetail/{goodsId}", produces = "text/html;charset=utf-8")
+    @RequestMapping(value = "/toDetail2/{goodsId}", produces = "text/html;charset=utf-8")
     @ResponseBody
-    public String toDetail(Model model, User user, @PathVariable("goodsId") Long goodsId, HttpServletRequest request, HttpServletResponse response) {
+    public String toDetail2(Model model, User user, @PathVariable("goodsId") Long goodsId, HttpServletRequest request, HttpServletResponse response) {
         //从redis中获取页面缓存
         ValueOperations valueOperations = redisTemplate.opsForValue();
         String html = (String) valueOperations.get("goodsDetail:" + goodsId);

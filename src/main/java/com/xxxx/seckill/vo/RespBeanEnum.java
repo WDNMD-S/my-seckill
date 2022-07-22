@@ -25,6 +25,10 @@ public enum RespBeanEnum {
     LOGIN_ERROR(500210, "用户名或密码错误"),
     MOBILE_ERROR(500211, "手机号码格式错误"),
     BIND_ERROR(500212,"参数校验异常"),
+    SESSION_ERROR(500213,"用户SESSION未找到"),
+
+    //订单模块
+    ORDER_NOT_EXIST(500300,"订单不存在"),
 
     //秒杀模块
     EMPTY_STOCK_ERROR(500500,"商品库存不足"),
