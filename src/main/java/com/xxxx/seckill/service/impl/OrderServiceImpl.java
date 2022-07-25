@@ -18,7 +18,9 @@ import com.xxxx.seckill.vo.OrderDetailVo;
 import com.xxxx.seckill.vo.RespBeanEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -51,15 +53,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private RedisTemplate redisTemplate;
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Order seckill(GoodsVo goods, User user) {
+        ValueOperations valueOperations = redisTemplate.opsForValue();
         //从数据库中去库存数据，不要用前端传输过来的数据
         QueryWrapper<SeckillGoods> queryWrapper = new QueryWrapper<SeckillGoods>().eq("goods_id", goods.getId());
         SeckillGoods seckillGoods = seckillGoodsService.getOne(queryWrapper);
         if (seckillGoods.getStockCount() < 1) {
+            valueOperations.set("isStockEmpty:" + seckillGoods.getId(), "0");
             throw new GlobalException(RespBeanEnum.EMPTY_STOCK_ERROR);
         }
+        System.out.println("==>库存:" + seckillGoods.getStockCount());
         seckillGoods.setStockCount(seckillGoods.getStockCount() - 1);
+        System.out.println("==>库存:" + seckillGoods.getStockCount());
 //        seckillGoodsService.updateById(seckillGoods);
         seckillGoodsService.update(new UpdateWrapper<SeckillGoods>().set("stock_count",seckillGoods.getStockCount()).eq("goods_id", goods.getId()).gt("stock_count", 0));
         //创建订单
@@ -78,7 +84,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         seckillOrder.setOrderId(order.getId());
         seckillOrder.setGoodsId(goods.getId());
         seckillOrderService.save(seckillOrder);
-        redisTemplate.opsForValue().set("order:" + user.getId() + ":" + goods.getId(), seckillOrder, 10, TimeUnit.MINUTES);
+        valueOperations.set("order:" + user.getId() + ":" + goods.getId(), seckillOrder, 10, TimeUnit.MINUTES);
         return order;
     }
 

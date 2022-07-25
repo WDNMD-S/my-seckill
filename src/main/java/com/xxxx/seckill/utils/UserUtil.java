@@ -9,7 +9,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,22 +32,22 @@ public class UserUtil {
         }
         System.out.println("create user");
           //插入数据库
-         Connection conn = getConn();
-         String sql = "insert into t_user(login_count, nickname, salt, password, id)values(?,?,?,?,?)";
-         PreparedStatement pstmt = conn.prepareStatement(sql);
-         for (int i = 0; i < users.size(); i++) {
-         	User user = users.get(i);
-         	pstmt.setInt(1, user.getLoginCount());
-         	pstmt.setString(2, user.getNickname());
-         	pstmt.setString(3, user.getSalt());
-         	pstmt.setString(4, user.getPassword());
-         	pstmt.setLong(5, user.getId());
-         	pstmt.addBatch();
-         }
-         pstmt.executeBatch();
-         pstmt.close();
-         conn.close();
-         System.out.println("insert to db");
+//         Connection conn = getConn();
+//         String sql = "insert into t_user(login_count, nickname, salt, password, id)values(?,?,?,?,?)";
+//         PreparedStatement pstmt = conn.prepareStatement(sql);
+//         for (int i = 0; i < users.size(); i++) {
+//         	User user = users.get(i);
+//         	pstmt.setInt(1, user.getLoginCount());
+//         	pstmt.setString(2, user.getNickname());
+//         	pstmt.setString(3, user.getSalt());
+//         	pstmt.setString(4, user.getPassword());
+//         	pstmt.setLong(5, user.getId());
+//         	pstmt.addBatch();
+//         }
+//         pstmt.executeBatch();
+//         pstmt.close();
+//         conn.close();
+//         System.out.println("insert to db");
         //登录，生成userTicket
         String urlString = "http://localhost:8080/login/doLogin";
         File file = new File("E:\\test\\config.txt");
