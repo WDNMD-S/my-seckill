@@ -1,7 +1,6 @@
 package com.xxxx.seckill.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.xxxx.seckill.exception.GlobalException;
 import com.xxxx.seckill.mapper.UserMapper;
 import com.xxxx.seckill.pojo.User;
 import com.xxxx.seckill.service.IUserService;
@@ -61,11 +60,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         User user = userMapper.selectById(mobile);
         if (user == null) {
 //            return RespBean.error(RespBeanEnum.LOGIN_ERROR);
-            throw new GlobalException(RespBeanEnum.LOGIN_ERROR);
+            return RespBean.error(RespBeanEnum.LOGIN_ERROR);
         }
         //判断密码是否正确
         if (!user.getPassword().equals(MD5Util.formPassToDBPass(password, user.getSalt()))) {
-            throw new GlobalException(RespBeanEnum.LOGIN_ERROR);
+            return RespBean.error(RespBeanEnum.LOGIN_ERROR);
         }
         //生成Cookie保存ticket，通过ticket保存user的session
         String ticket = UUIDUtil.uuid();

@@ -33,6 +33,10 @@ public enum RespBeanEnum {
     //秒杀模块
     EMPTY_STOCK_ERROR(500500,"商品库存不足"),
     REPEAT_ERROR(500501,"商品限购一件"),
+    REQUEST_ILLEGAL(500502,"请求非法"),
+    GOODS_NOT_EXIST(500503,"商品不存在"),
+    EMPTY_CAPTCHA(500504,"验证码不能为空"),
+    ERROR_CAPTCHA(500505,"验证码错误"),
 
     ;
 

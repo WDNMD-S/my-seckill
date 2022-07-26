@@ -88,10 +88,17 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+<!--        JSON格式化-->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.8.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.whvcse</groupId>
+            <artifactId>easy-captcha</artifactId>
+            <version>1.6.2</version>
         </dependency>
 
 
