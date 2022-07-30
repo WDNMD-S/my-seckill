@@ -206,6 +206,7 @@ public class seckillController implements InitializingBean {
 //        model.addAttribute("order",order);
 //        return "orderDetail";
 //    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         List<GoodsVo> goodsVo = goodsService.findGoodsVo();

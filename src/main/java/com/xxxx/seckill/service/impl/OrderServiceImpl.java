@@ -1,6 +1,5 @@
 package com.xxxx.seckill.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xxxx.seckill.exception.GlobalException;
@@ -22,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -56,19 +54,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private RedisTemplate redisTemplate;
 
     @Override
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional
     public Order seckill(GoodsVo goods, User user) {
         ValueOperations valueOperations = redisTemplate.opsForValue();
         //从数据库中去库存数据，不要用前端传输过来的数据
-        QueryWrapper<SeckillGoods> queryWrapper = new QueryWrapper<SeckillGoods>().eq("goods_id", goods.getId());
-        SeckillGoods seckillGoods = seckillGoodsService.getOne(queryWrapper);
-        if (seckillGoods.getStockCount() < 1) {
-            valueOperations.set("isStockEmpty:" + seckillGoods.getId(), "0");
-            throw new GlobalException(RespBeanEnum.EMPTY_STOCK_ERROR);
-        }
-        seckillGoods.setStockCount(seckillGoods.getStockCount() - 1);
+//        QueryWrapper<SeckillGoods> queryWrapper = new QueryWrapper<SeckillGoods>().eq("goods_id", goods.getId());
+//        SeckillGoods seckillGoods = seckillGoodsService.getOne(queryWrapper);
+//        if (seckillGoods.getStockCount() < 1) {
+//            valueOperations.set("isStockEmpty:" + seckillGoods.getId(), "0");
+//            throw new GlobalException(RespBeanEnum.EMPTY_STOCK_ERROR);
+//        }
+//        seckillGoods.setStockCount(seckillGoods.getStockCount() - 1);
 //        seckillGoodsService.updateById(seckillGoods);
-        seckillGoodsService.update(new UpdateWrapper<SeckillGoods>().set("stock_count", seckillGoods.getStockCount()).eq("goods_id", goods.getId()).gt("stock_count", 0));
+        seckillGoodsService.update(new UpdateWrapper<SeckillGoods>().setSql("stock_count = stock_count - 1").eq("goods_id", goods.getId()).gt("stock_count", 0));
         //创建订单
         Order order = new Order();
         order.setUserId(user.getId());

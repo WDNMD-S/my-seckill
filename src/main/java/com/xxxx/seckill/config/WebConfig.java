@@ -28,7 +28,9 @@ public class WebConfig implements WebMvcConfigurer {
         resolvers.add(userArgumentResolver);
     }
 
-    //实现了WebMvcConfigurer接口就要重写该方法，否则静态资源可能找不到
+    /**
+     * 实现了WebMvcConfigurer接口就要重写该方法，否则静态资源可能找不到
+     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
